@@ -6,26 +6,65 @@ import gIcon from "../../assets/google.png";
 import { useForm } from "react-hook-form";
 import { useContext } from "react";
 import { AuthContext } from "../../AuthProvider/AuthProvider";
+import { sendEmailVerification, updateProfile } from "firebase/auth";
+import Swal from "sweetalert2";
 
 const Register = () => {
   const { userRegister, user } = useContext(AuthContext);
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
 
   const onSubmit = (data) => {
-    // FirstName: 'Md', LastName: 'Najim', Email: 'mdnajimhosain4@gmail.com', Password: 'N@jim12345678', ConfirmPassword: '12345678'
     userRegister(data.Email, data.Password)
-    .then((uerCredentials) => {
-      console.log(uerCredentials);
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-
+      .then((userCredentials) => {
+        updateProfile(userCredentials.user, {
+          displayName: data?.Name,
+          photoURL: data?.ImgUrl,
+        })
+          .then(() => {
+            sendEmailVerification(userCredentials.user)
+              .then(() => {
+                Swal.fire({
+                  icon: "success",
+                  title: "Account created successfully",
+                  text: "An verification email has been sent, please check your mail box!",
+                  showConfirmButton: false,
+                  timer: 4000,
+                });
+                setTimeout(() => {}, 4000);
+              })
+              .catch((error) => {
+                Swal.fire({
+                  icon: "error",
+                  title: "Oops...",
+                  text: error.message,
+                });
+              });
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: error.message,
+            });
+          });
+      })
+      .catch((err) => {
+        if (err.code === "auth/email-already-in-use") {
+          Swal.fire({
+            icon: "warning",
+            text: "This email is already in registered!",
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            text: "Something went wrong! Please try again!",
+          });
+        }
+      });
   };
   return (
     <div>
@@ -34,36 +73,60 @@ const Register = () => {
         <div className="w-[500px] rounded-md border-[1px] border-border px-12 py-6">
           <h3 className="text-2xl font-bold">Create an account</h3>
           <form onSubmit={handleSubmit(onSubmit)} action="">
-            <input
-              className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
-              placeholder="First Name"
-              type="text"
-              {...register("FirstName", { required: true })}
-            />
-            <input
-              className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
-              placeholder="Last Name"
-              type="text"
-              {...register("LastName", { required: true })}
-            />
-            <input
-              className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
-              placeholder="Email"
-              type="email"
-              {...register("Email", { required: true })}
-            />
-            <input
-              className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
-              placeholder="Password"
-              type="password"
-              {...register("Password", { required: true })}
-            />
-            <input
-              className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
-              placeholder="Confirm password"
-              type="password"
-              {...register("ConfirmPassword", { required: true })}
-            />
+            <div className="">
+              <input
+                className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
+                placeholder="Full Name"
+                type="text"
+                {...register("Name", { required: true })}
+                aria-invalid={errors.FirstName ? "true" : "false"}
+              />
+              {errors.Name && (
+                <p className="text-red-500 text-xs">This filed id required!</p>
+              )}
+            </div>
+            <div className="">
+              <input
+                className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
+                placeholder="Image URL"
+                type="text"
+                {...register("ImgUrl")}
+              />
+            </div>
+
+            <div className="">
+              <input
+                className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
+                placeholder="Email"
+                type="email"
+                {...register("Email", { required: true })}
+              />
+              {errors.Email && (
+                <p className="text-red-500 text-xs">This filed id required!</p>
+              )}
+            </div>
+            <div className="">
+              <input
+                className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
+                placeholder="Password"
+                type="password"
+                {...register("Password", { required: true })}
+              />
+              {errors.Password && (
+                <p className="text-red-500 text-xs">This filed id required!</p>
+              )}
+            </div>
+            <div className="">
+              <input
+                className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
+                placeholder="Confirm password"
+                type="password"
+                {...register("ConfirmPassword", { required: true })}
+              />
+              {errors.ConfirmPassword && (
+                <p className="text-red-500 text-xs">This filed id required!</p>
+              )}
+            </div>
             <input
               type="submit"
               value="Create an account"
