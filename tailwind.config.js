@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         commonOrg: "#F9A51A",
+        border: "#ABABAB",
       },
     },
   },
