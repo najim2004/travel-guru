@@ -22,8 +22,8 @@ const Navbar = () => {
     </>
   );
   return (
-    <div className="max-w-[1160px] mx-auto mt-9">
-      <div className="navbar bg-base-100">
+    <div className="max-w-[1160px] mx-auto pt-9">
+      <div className="navbar">
         <div className="navbar-start">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -51,8 +51,8 @@ const Navbar = () => {
           </div>
           <img className="w-[120px]" src={logo} alt="" />
         </div>
-        <div className="navbar-center gap-11 hidden lg:flex">
-          <div className="flex gap-3 pl-4 w-[370px] border-[1px] border-black h-11 rounded-[5px] bg-[rgba(255,255,255,0.20)] items-center">
+        <div className="navbar-center gap-7 hidden lg:flex">
+          <div className="flex gap-3 pl-4 w-[370px] border-[1px] border-white text-white h-11 rounded-[5px] bg-[rgba(255,255,255,0.20)] items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -71,10 +71,10 @@ const Navbar = () => {
               type="text"
             />
           </div>
-          <ul className="gap-12 menu-horizontal px-1">{menu}</ul>
+          <ul className="gap-8 menu-horizontal px-1 font-medium text-white">{menu}</ul>
         </div>
         <div className="navbar-end">
-          <button className="btn btn-sm font-medium h-11 w-[104px] rounded-[5px ]">Login</button>
+          <button className="btn btn-sm font-medium h-11 w-[104px] rounded-[5px ] border-none bg-commonOrg">Login</button>
         </div>
       </div>
     </div>
