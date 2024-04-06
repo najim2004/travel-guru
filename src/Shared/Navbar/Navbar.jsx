@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 
 const Navbar = () => {
@@ -71,10 +71,16 @@ const Navbar = () => {
               type="text"
             />
           </div>
-          <ul className="gap-8 menu-horizontal px-1 font-medium text-white">{menu}</ul>
+          <ul className="gap-8 menu-horizontal px-1 font-medium text-white">
+            {menu}
+          </ul>
         </div>
         <div className="navbar-end">
-          <button className="btn btn-sm font-medium h-11 w-[104px] rounded-[5px ] border-none bg-commonOrg">Login</button>
+          <Link to={'/login'}>
+            <button className="btn btn-sm font-medium h-11 w-[104px] !rounded-[5px] border-none bg-commonOrg">
+              Login
+            </button>
+          </Link>
         </div>
       </div>
     </div>

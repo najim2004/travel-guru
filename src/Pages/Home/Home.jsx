@@ -4,13 +4,12 @@ import bgImg from "../../assets/Rectangle 1.png";
 const Home = () => {
   return (
     <div
-      className="h-screen relative"
+      className="h-screen bg-no-repeat bg-cover bg-bottom relative"
       style={{ backgroundImage: `url(${bgImg})` }}
     >
       <div className="absolute inset-0 bg-[rgba(0,0,0,0.70)]">
 
         <Navbar></Navbar>
-        <h3>this is home</h3>
 
       </div>
     </div>
