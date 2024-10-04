@@ -1,14 +1,31 @@
+// ---------------- import area ---------------
+
 import { Link } from "react-router-dom";
 import Navbar2 from "../../Shared/Navbar/Navbar2";
-import fbIcon from "../../assets/fb.png";
-import gIcon from "../../assets/google.png";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../../AuthProvider/AuthProvider";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
+import OthersLogin from "../../Shared/OthersLogin/OthersLogin";
+import { useLocation, useNavigate } from "react-router-dom";
+import emoji from "../../assets/emoji.png";
+
+// ---------------- import area ---------------
 
 const Login = () => {
-  const { user, userLogin } = useContext(AuthContext);
+  const { user, userLogin, loading } = useContext(AuthContext);
+  const location = useLocation();
+  const navigator = useNavigate();
+
+  useEffect(() => {
+    if (user && !loading) {
+      if (location.state) {
+        navigator(location.state);
+      } else {
+        navigator("/");
+      }
+    }
+  }, [user, loading]);
   const {
     register,
     handleSubmit,
@@ -18,10 +35,19 @@ const Login = () => {
     userLogin(data.Email, data.Password).then((userCredentials) => {
       if (userCredentials?.user?.emailVerified) {
         Swal.fire({
+          imageUrl: `${emoji}`,
+          imageWidth: 200,
           title: `Welcome back dear "${userCredentials?.user?.displayName}"`,
           showConfirmButton: false,
           timer: 2000,
         });
+        setTimeout(() => {
+          if (location.state) {
+            navigator(location.state);
+          } else {
+            navigator("/");
+          }
+        }, 2000);
       } else {
         Swal.fire({
           icon: "warning",
@@ -42,10 +68,18 @@ const Login = () => {
                 className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
                 placeholder="Email"
                 type="email"
-                {...register("Email", { required: true })}
+                {...register("Email", {
+                  required: true,
+                  pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                })}
               />
               {errors.Email && (
                 <p className="text-red-500 text-xs">This filed id required!</p>
+              )}
+              {errors?.Email?.type === "pattern" && (
+                <p className="text-red-500 text-xs">
+                  This is not a valid email!
+                </p>
               )}
             </div>
             <div className="">
@@ -86,19 +120,7 @@ const Login = () => {
             </Link>
           </p>
         </div>
-        <div className="flex justify-center mb-3 items-center gap-2 mt-3 w-full">
-          <hr className="h-[1px] min-w-[200px] bg-border" />
-          <p className="font-medium">Or</p>
-          <hr className="h-[1px] min-w-[200px] bg-border" />
-        </div>
-        <button className="h-[50px] hover:!bg-commonOrg flex pl-2 btn !justify-normal !bg-transparent w-[461px] rounded-[57px] border-[1px] border-border gap-[97px] items-center">
-          <img className="size-9" src={fbIcon} alt="" />{" "}
-          <p>Continue with Facebook</p>
-        </button>
-        <button className="h-[50px] hover:!bg-commonOrg mt-2 pl-2 btn !justify-normal !bg-transparent flex w-[461px] rounded-[57px] border-[1px] border-border gap-[97px] items-center">
-          <img className="size-9" src={gIcon} alt="" />{" "}
-          <p>Continue with Google</p>
-        </button>
+        <OthersLogin></OthersLogin>
       </div>
     </div>
   );

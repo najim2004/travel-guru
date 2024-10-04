@@ -1,7 +1,10 @@
 import { Link, NavLink } from "react-router-dom";
 import logo from "../../assets/logo.svg";
-
+import { useContext } from "react";
+import { AuthContext } from "../../AuthProvider/AuthProvider";
+import userpng from "../../assets/user.png";
 const Navbar = () => {
+  const { user, userLogOut } = useContext(AuthContext);
   const menu = (
     <>
       <li>
@@ -21,6 +24,11 @@ const Navbar = () => {
       </li>
     </>
   );
+
+  const handleLogout = () => {
+    userLogOut().then(() => {});
+  };
+
   return (
     <div className="max-w-[1160px] mx-auto pt-9">
       <div className="navbar">
@@ -76,11 +84,50 @@ const Navbar = () => {
           </ul>
         </div>
         <div className="navbar-end">
-          <Link to={'/login'}>
-            <button className="btn btn-sm font-medium h-11 w-[104px] !rounded-[5px] border-none bg-commonOrg">
-              Login
-            </button>
-          </Link>
+          {user && (
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-ghost btn-circle avatar"
+              >
+                <div className="size-10 rounded-full">
+                  <img
+                    alt="Tailwind CSS Navbar component"
+                    src={user?.photoURL ? user?.photoURL : userpng}
+                  />
+                </div>
+              </div>
+              <ul
+                tabIndex={0}
+                className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
+              >
+                <li>
+                  <a className="justify-between">
+                    Profile
+                    <span className="badge">New</span>
+                  </a>
+                </li>
+                <li>
+                  <a>Settings</a>
+                </li>
+                <li>
+                  {user ? (
+                    <a onClick={handleLogout}>Logout</a>
+                  ) : (
+                    <Link to={"/login"}>Login</Link>
+                  )}
+                </li>
+              </ul>
+            </div>
+          )}
+          {!user && (
+            <Link to={"/login"}>
+              <button className="btn btn-sm font-medium h-11 w-[104px] !rounded-[5px] border-none bg-commonOrg">
+                Login
+              </button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

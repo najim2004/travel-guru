@@ -1,21 +1,42 @@
+// --------------------import area------------------------
+
 import { Link } from "react-router-dom";
 import Navbar2 from "../../Shared/Navbar/Navbar2";
-import fbIcon from "../../assets/fb.png";
-import gIcon from "../../assets/google.png";
-
 import { useForm } from "react-hook-form";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../AuthProvider/AuthProvider";
 import { sendEmailVerification, updateProfile } from "firebase/auth";
 import Swal from "sweetalert2";
+import OthersLogin from "../../Shared/OthersLogin/OthersLogin";
+import { useLocation, useNavigate } from "react-router-dom";
+
+// --------------------import area------------------------
 
 const Register = () => {
-  const { userRegister, user } = useContext(AuthContext);
+  const { userRegister, user, loading } = useContext(AuthContext);
+  const [password, setPassword] = useState("null");
+  const location = useLocation();
+  const navigator = useNavigate();
+
+  useEffect(() => {
+    if (user && !loading) {
+      if (location.state) {
+        navigator(location.state);
+      } else {
+        navigator("/");
+      }
+    }
+  }, [user, loading]);
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
+
+  useEffect(() => {
+    setPassword(watch("Password"));
+  }, [watch("Password")]);
 
   const onSubmit = (data) => {
     userRegister(data.Email, data.Password)
@@ -34,7 +55,13 @@ const Register = () => {
                   showConfirmButton: false,
                   timer: 4000,
                 });
-                setTimeout(() => {}, 4000);
+                setTimeout(() => {
+                  if (location.state) {
+                    navigator(location.state);
+                  } else {
+                    navigator("/");
+                  }
+                }, 4000);
               })
               .catch((error) => {
                 Swal.fire({
@@ -57,6 +84,11 @@ const Register = () => {
           Swal.fire({
             icon: "warning",
             text: "This email is already in registered!",
+          });
+        } else if (err.code === "auth/network-request-failed") {
+          Swal.fire({
+            icon: "warning",
+            text: "Network request failed! Please check network and try again!",
           });
         } else {
           Swal.fire({
@@ -98,11 +130,19 @@ const Register = () => {
               <input
                 className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
                 placeholder="Email"
-                type="email"
-                {...register("Email", { required: true })}
+                type="text"
+                {...register("Email", {
+                  required: true,
+                  pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                })}
               />
-              {errors.Email && (
+              {errors.Email?.type === "required" && (
                 <p className="text-red-500 text-xs">This filed id required!</p>
+              )}
+              {errors?.Email?.type === "pattern" && (
+                <p className="text-red-500 text-xs">
+                  This is not a valid email!
+                </p>
               )}
             </div>
             <div className="">
@@ -110,10 +150,26 @@ const Register = () => {
                 className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
                 placeholder="Password"
                 type="password"
-                {...register("Password", { required: true })}
+                {...register("Password", {
+                  required: true,
+                  minLength: 8,
+                  pattern:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]+$/,
+                })}
               />
-              {errors.Password && (
+              {errors.Password?.type === "required" && (
                 <p className="text-red-500 text-xs">This filed id required!</p>
+              )}
+              {errors?.Password?.type === "minLength" && (
+                <p className="text-red-500 text-xs">
+                  password minimum length must be 8!
+                </p>
+              )}
+              {errors?.Password?.type === "pattern" && (
+                <p className="text-red-500 text-xs">
+                  password must contain at least one lowercase letter, uppercase
+                  letter, digit and special characters!
+                </p>
               )}
             </div>
             <div className="">
@@ -121,10 +177,28 @@ const Register = () => {
                 className="outline-none font-medium w-full h-10 mt-6 bg-transparent border-b-[1px] border-border"
                 placeholder="Confirm password"
                 type="password"
-                {...register("ConfirmPassword", { required: true })}
+                {...register("ConfirmPassword", {
+                  required: true,
+                  minLength: 8,
+                  pattern:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]+$/,
+                  validate: (ConfirmPassword) => {
+                    if (ConfirmPassword !== password) {
+                      return "Passwords do not match!";
+                    }
+                  },
+                })}
               />
-              {errors.ConfirmPassword && (
+              {errors?.ConfirmPassword?.type === "required" && (
                 <p className="text-red-500 text-xs">This filed id required!</p>
+              )}
+              {errors?.ConfirmPassword?.type === "minLength" && (
+                <p className="text-red-500 text-xs">
+                  password minimum length must be 8!
+                </p>
+              )}
+              {errors?.ConfirmPassword?.type == "validate" && (
+                <p className="text-red-500 text-xs">password dose not match</p>
               )}
             </div>
             <input
@@ -140,19 +214,7 @@ const Register = () => {
             </Link>
           </p>
         </div>
-        <div className="flex justify-center mb-3 items-center gap-2 mt-3 w-full">
-          <hr className="h-[1px] min-w-[200px] bg-border" />
-          <p className="font-medium">Or</p>
-          <hr className="h-[1px] min-w-[200px] bg-border" />
-        </div>
-        <button className="h-[50px] hover:!bg-commonOrg flex pl-2 btn !justify-normal !bg-transparent w-[461px] rounded-[57px] border-[1px] border-border gap-[97px] items-center">
-          <img className="size-9" src={fbIcon} alt="" />{" "}
-          <p>Continue with Facebook</p>
-        </button>
-        <button className="h-[50px] hover:!bg-commonOrg mt-2 pl-2 btn !justify-normal !bg-transparent flex w-[461px] rounded-[57px] border-[1px] border-border gap-[97px] items-center">
-          <img className="size-9" src={gIcon} alt="" />{" "}
-          <p>Continue with Google</p>
-        </button>
+        <OthersLogin></OthersLogin>
       </div>
     </div>
   );
